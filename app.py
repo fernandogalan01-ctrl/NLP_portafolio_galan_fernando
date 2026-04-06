@@ -36,7 +36,7 @@ def process_question(user_question, vector_store):
     # Retrieval
     docs = vector_store.similarity_search(user_question, k=3)
     context = "".join([doc.page_content for doc in docs])
-    # Prompt Engineering (
+    # Prompt Engineering 
     template = """
     Use the following pieces of context to answer the question at the end. 
     If you don't know the answer based on the context, just say that you don't know, don't try to make up an answer.
@@ -51,3 +51,21 @@ def process_question(user_question, vector_store):
     # Invoke the chain with the retrieved context and user question
     response = chain.invoke({"context": context, "question": user_question})
     return response
+# Streamlit UI
+with st.sidebar:
+    st.subheader("Your Documents")
+    pdf_docs = st.file_uploader("Upload your PDFs here and click 'Process'", accept_multiple_files=True)
+    if st.button("Process"):
+        with st.spinner("Processing..."):
+            raw_text = get_pdf_text(pdf_docs)
+            text_chunks = get_text_chunks(raw_text)
+            st.session_state.vector_store = get_vector_store(text_chunks)
+            st.success("Processing Complete!")
+user_question = st.text_input("Ask a question about your documents:")
+if user_question and "vector_store" in st.session_state:
+    with st.spinner("Thinking..."):
+        answer = process_question(user_question, st.session_state.vector_store)
+        st.write("**Answer:**")
+        st.write(answer)
+elif user_question:
+    st.warning("Please upload and process a document first.")
