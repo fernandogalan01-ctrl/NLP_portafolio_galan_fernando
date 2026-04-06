@@ -31,3 +31,23 @@ def get_vector_store(text_chunks):
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     return vector_store
+# Processing: Retrieval + Prompt Engineering + Local LLM Generation
+def process_question(user_question, vector_store):
+    # Retrieval
+    docs = vector_store.similarity_search(user_question, k=3)
+    context = "".join([doc.page_content for doc in docs])
+    # Prompt Engineering (
+    template = """
+    Use the following pieces of context to answer the question at the end. 
+    If you don't know the answer based on the context, just say that you don't know, don't try to make up an answer.
+    Context:
+    {context}
+    Question: {question}
+    Helpful Answer:"""
+    prompt = PromptTemplate(input_variables=["context", "question"], template=template)
+    # Local LLM Generation with Ollama
+    llm = Ollama(model="llama3.2")
+    chain = prompt | llm
+    # Invoke the chain with the retrieved context and user question
+    response = chain.invoke({"context": context, "question": user_question})
+    return response
