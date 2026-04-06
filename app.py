@@ -3,9 +3,9 @@ from PyPDF2 import PdfReader
 import langchain
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import PromptTemplate
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
 st.set_page_config(page_title="Local DocQ&A")
 st.title("Local Document Q&A Assistant")
 st.write("Upload a PDF document and ask questions based on its context. Powered entirely by local LLMs via Ollama.")
@@ -46,7 +46,7 @@ def process_question(user_question, vector_store):
     Helpful Answer:"""
     prompt = PromptTemplate(input_variables=["context", "question"], template=template)
     # Local LLM Generation with Ollama
-    llm = Ollama(model="llama3.2")
+    llm = OllamaLLM(model="llama3.2")
     chain = prompt | llm
     # Invoke the chain with the retrieved context and user question
     response = chain.invoke({"context": context, "question": user_question})
