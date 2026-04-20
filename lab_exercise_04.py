@@ -28,18 +28,31 @@ def load_audio_file(file_path):
         audio_data = recognizer.record(source) 
         print("Audio File Loaded Successfully")
         return recognizer, audio_data
-# Speech to Text (STT) using SpeechRecognition
-def speech_to_text(file_path):
+def transcribe_audio(file_path, engine="google"):
+    """
+    Transcribes audio. 
+    engine="google" uses external API. 
+    engine="sphinx" uses local offline processing (requires pocketsphinx).
+    """
     recognizer, audio_data = load_audio_file(file_path)
+    if audio_data is None:
+        return None
     try:
-        print("Executing Speech to Text STT SpeechRecognition")
-        text = recognizer.recognize_google(audio_data)
-        print(f"Recognized Text: {text}")
+        if engine == "google":
+            print("[+] Executing External STT Google")
+            text = recognizer.recognize_google(audio_data)
+        elif engine == "sphinx":
+            print("[+] Executing Local STT Sphinx")
+            text = recognizer.recognize_sphinx(audio_data) 
+        else:
+            print("Invalid engine specified.")
+            return None  
+        print(f"Recognized Text: '{text}'")
         return text
     except sr.UnknownValueError:
         print("Speech Recognition could not understand audio")  
     except sr.RequestError as e:
-        print(f"Could not request results from Speech Recognition service; {e}")  
+        print(f"Could not request results from Speech Recognition service; {e}")
 # Execution Flow
 if __name__ == "__main__":
     print("SPEECH TASKS PIPELINE")
@@ -47,8 +60,13 @@ if __name__ == "__main__":
     local_tts("Hello. This is my local text to speech running offline.")
     # Test External TTS
     external_tts("And this is the external API text to speech running online.")
-    # Test Speech to Text (STT)
-    load_audio_file("C:\\Users\\ferga\\Documents\\Nueva carpeta\\NLP_portafolio_galan_fernando-1\\local_stt_input.wav")
-    speech_to_text("C:\\Users\\ferga\\Documents\\Nueva carpeta\\NLP_portafolio_galan_fernando-1\\local_stt_input.wav")
+    # Test Local Speech to Text STT
+    # Make sure to replace the file paths with the correct paths to your audio files
+    local_input = os.path.join("C:\\Users\\ferga\\Documents\\Nueva carpeta\\NLP_portafolio_galan_fernando-1", "local_stt_input.wav")
+    external_input = os.path.join("C:\\Users\\ferga\\Documents\\Nueva carpeta\\NLP_portafolio_galan_fernando-1", "external_stt_input.wav")
+    # Test Local Speech to Text STT
+    transcribe_audio(local_input, engine="sphinx")
+    # Test External Speech to Text STT
+    transcribe_audio(external_input, engine="google")
     
     
