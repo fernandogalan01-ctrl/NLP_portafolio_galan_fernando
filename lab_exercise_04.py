@@ -5,11 +5,12 @@ import speech_recognition as sr
 from gtts import gTTS
 from textblob import TextBlob
 # Local Text to Speech (TTS) using pyttsx3
-def local_tts(text):
+def local_tts(text, filename="local_tts_output.mp3"):
     print("Executing Local TTS")
     engine = pyttsx3.init()
     engine.setProperty('rate', 105)  # Set speech rate
     engine.say(text)
+    engine.save_to_file(text, filename)
     engine.runAndWait()
 # External Text to Speech (TTS) using gTTS (Google Text-to-Speech API)
 def external_tts(text, filename="external_tts_output.mp3"):
