@@ -32,17 +32,17 @@ def transcribe_audio(file_path, engine="google"):
     """
     Transcribes audio. 
     engine="google" uses external API. 
-    engine="sphinx" uses local offline processing (requires pocketsphinx).
+    engine="sphinx" uses local offline processing.
     """
     recognizer, audio_data = load_audio_file(file_path)
     if audio_data is None:
         return None
     try:
         if engine == "google":
-            print("[+] Executing External STT Google")
+            print("Executing External STT Google")
             text = recognizer.recognize_google(audio_data)
         elif engine == "sphinx":
-            print("[+] Executing Local STT Sphinx")
+            print("Executing Local STT Sphinx")
             text = recognizer.recognize_sphinx(audio_data) 
         else:
             print("Invalid engine specified.")
@@ -68,5 +68,20 @@ if __name__ == "__main__":
     transcribe_audio(local_input, engine="sphinx")
     # Test External Speech to Text STT
     transcribe_audio(external_input, engine="google")
-    
+    local_input = os.path.join("C:\\Users\\ferga\\Documents\\Nueva carpeta\\NLP_portafolio_galan_fernando-1", "local_stt_input.wav")
+    # Perform Sentiment Analysis on Transcribed Text from Local STT
+    transcribed_text = transcribe_audio(external_input, engine="google")
+    if transcribed_text:
+        print("Running Sentiment Analysis on Transcribed Text")
+        blob = TextBlob(transcribed_text)
+        polarity = blob.sentiment.polarity
+        print(f"Text to analyze: '{transcribed_text}'")
+        print(f"Polarity Score: {polarity}")
+        # Determine sentiment based on polarity score
+        if polarity > 0.1:
+            print("Sentiment: Positive")
+        elif polarity < -0.1:
+            print("Sentiment: Negative")
+        else:
+            print("Sentiment: Neutral")
     
